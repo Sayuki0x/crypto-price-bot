@@ -18,27 +18,28 @@ async function main() {
         log.info("Bot logged in");
 
         const actions: Array<() => void> = [];
-
-        client.user?.setPresence({
-            activities: [
-                {
-                    name: `${COIN_TICKER}/USD`,
-                    type: "WATCHING",
-                },
-            ],
-        });
-
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const scraper = new Scraper(COIN_SYMBOL!);
 
-        const updateName = () => {
+        const set24H = () => {
+            client.user?.setPresence({
+                activities: [
+                    {
+                        name: `24H ${scraper.getDayChange()?.toFixed(2)}%`,
+                        type: "WATCHING",
+                    },
+                ],
+            });
+        };
+
+        const setName = () => {
             client.guilds.cache.forEach(async (guild) => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const user = await guild.members.fetch(client.user!.id);
                 actions.push(async () => {
                     try {
                         user.setNickname(
-                            `$${numberWithCommas(scraper.getPrice() || 0)}`
+                            ` $${numberWithCommas(scraper.getPrice() || 0)}`
                         );
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } catch (err: any) {
@@ -48,10 +49,9 @@ async function main() {
             });
         };
 
-        scraper.on("newPrice", (p) => {
-            log.info("New price " + p);
-            updateName();
-        });
+        scraper.on("newPrice", setName);
+
+        scraper.on("newDayChange", set24H);
 
         const processActions = async () => {
             // eslint-disable-next-line no-constant-condition

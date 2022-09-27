@@ -1,10 +1,10 @@
 import axios from "axios";
 import { EventEmitter } from "stream";
-import { COIN_SYMBOL } from ".";
 
 export class Scraper extends EventEmitter {
-    private gasPrice: number | null = null;
     private price: number | null = null;
+    private dayChange: number | null = null;
+
     private symbol: string;
 
     constructor(symbol: string) {
@@ -17,8 +17,8 @@ export class Scraper extends EventEmitter {
         return this.price;
     }
 
-    public getGasPrice() {
-        return this.gasPrice;
+    public getDayChange() {
+        return this.dayChange;
     }
 
     private init = async () => {
@@ -30,13 +30,24 @@ export class Scraper extends EventEmitter {
 
     private fetchPrice = async () => {
         const res = await axios.get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${this.symbol}&vs_currencies=usd`
+            `https://api.coingecko.com/api/v3/coins/${this.symbol}`
         );
+
+        const price: number = res.data.market_data.current_price.usd;
+        const dayChange: number =
+            res.data.market_data.price_change_percentage_24h;
+
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (this.price !== res.data[COIN_SYMBOL!].usd) {
+        if (this.price !== price) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.price = res.data[COIN_SYMBOL!].usd;
+            this.price = price;
             this.emit("newPrice", this.price);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (this.dayChange !== dayChange) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.dayChange = dayChange;
+            this.emit("newDayChange", this.dayChange);
         }
     };
 }
