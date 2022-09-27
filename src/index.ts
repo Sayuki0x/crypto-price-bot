@@ -17,7 +17,16 @@ const rankToChar = (n: number) => {
         case 2:
             return "♛";
         default:
-            return "♟";
+            if (n >= 3 && n < 11) {
+                return "♜";
+            }
+            if (n >= 11 && n < 100) {
+                return "♞"
+            }
+            if (n >= 100 && n < 1000) {
+                return "♟"
+            }
+            return ""
     }
 };
 
