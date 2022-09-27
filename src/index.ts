@@ -35,9 +35,6 @@ async function main() {
             client.guilds.cache.forEach(async (guild) => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const user = await guild.members.fetch(client.user!.id);
-                if (actions.length > 0) {
-                    actions.length = 0;
-                }
                 actions.push(async () => {
                     try {
                         user.setNickname(
