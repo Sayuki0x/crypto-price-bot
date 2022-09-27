@@ -34,14 +34,15 @@ async function main() {
 
         const setName = () => {
             client.guilds.cache.forEach(async (guild) => {
-                const direction = (scraper.getDayChange() || 0) < 0 ?  "⬆️" : "⬇️"
+                const dayChange = scraper.getDayChange() || 0;
 
+                console.log(dayChange);
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const user = await guild.members.fetch(client.user!.id);
                 actions.push(async () => {
                     try {
                         user.setNickname(
-                            `${direction} $${numberWithCommas(scraper.getPrice() || 0)}`
+                            `$${numberWithCommas(scraper.getPrice() || 0)}`
                         );
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } catch (err: any) {
