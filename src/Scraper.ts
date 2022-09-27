@@ -4,9 +4,11 @@ import { EventEmitter } from "stream";
 export class Scraper extends EventEmitter {
     private gasPrice: number | null = null;
     private price: number | null = null;
+    private symbol: string;
 
-    constructor() {
+    constructor(symbol: string) {
         super();
+        this.symbol = symbol;
         this.init();
     }
 
@@ -27,7 +29,7 @@ export class Scraper extends EventEmitter {
 
     private fetchPrice = async () => {
         const res = await axios.get(
-            "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+            `https://api.coingecko.com/api/v3/simple/price?ids=${this.symbol}&vs_currencies=usd`
         );
         if (this.price !== res.data.solana.usd) {
             this.price = res.data.solana.usd;

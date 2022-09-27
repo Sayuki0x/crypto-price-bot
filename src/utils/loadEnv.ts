@@ -7,7 +7,9 @@ import { config } from "dotenv";
 export function loadEnv(): void {
     config();
     const requiredEnvVars: string[] = [
-        "DISCORD_TOKEN"
+        "DISCORD_TOKEN",
+        "COIN_SYMBOL",
+        "COIN_TICKER"
     ];
 
     const notFound: string[] = [];

@@ -8,6 +8,8 @@ import { sleep } from "./utils/sleep";
 // load the environment variables
 loadEnv();
 
+const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } = process.env;
+
 async function main() {
     // Create a new client instance
     const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -20,13 +22,14 @@ async function main() {
         client.user?.setPresence({
             activities: [
                 {
-                    name: "SOL/USD",
+                    name: `${COIN_TICKER}/USD`,
                     type: "WATCHING",
                 },
             ],
         });
 
-        const scraper = new Scraper();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const scraper = new Scraper(COIN_SYMBOL!);
 
         const updateName = () => {
             client.guilds.cache.forEach(async (guild) => {
@@ -67,7 +70,7 @@ async function main() {
         processActions();
     });
 
-    client.login(process.env.DISCORD_TOKEN);
+    client.login(DISCORD_TOKEN);
 }
 
 main();
