@@ -9,7 +9,7 @@ export function loadEnv(): void {
     const requiredEnvVars: string[] = [
         "DISCORD_TOKEN",
         "COIN_SYMBOL",
-        "COIN_TICKER"
+        "COIN_TICKER",
     ];
 
     const notFound: string[] = [];

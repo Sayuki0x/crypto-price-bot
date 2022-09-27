@@ -8,7 +8,7 @@ import { sleep } from "./utils/sleep";
 // load the environment variables
 loadEnv();
 
-const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } = process.env;
+export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } = process.env;
 
 async function main() {
     // Create a new client instance

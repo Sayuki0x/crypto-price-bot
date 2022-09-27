@@ -1,5 +1,6 @@
 import axios from "axios";
 import { EventEmitter } from "stream";
+import { COIN_SYMBOL } from ".";
 
 export class Scraper extends EventEmitter {
     private gasPrice: number | null = null;
@@ -31,8 +32,10 @@ export class Scraper extends EventEmitter {
         const res = await axios.get(
             `https://api.coingecko.com/api/v3/simple/price?ids=${this.symbol}&vs_currencies=usd`
         );
-        if (this.price !== res.data.solana.usd) {
-            this.price = res.data.solana.usd;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (this.price !== res.data[COIN_SYMBOL!].usd) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.price = res.data[COIN_SYMBOL!].usd;
             this.emit("newPrice", this.price);
         }
     };
