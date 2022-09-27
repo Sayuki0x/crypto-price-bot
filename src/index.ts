@@ -10,6 +10,17 @@ loadEnv();
 
 export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } = process.env;
 
+const rankToChar = (n: number) => {
+    switch (n) {
+        case 1:
+            return "♚";
+        case 2:
+            return "♛";
+        default:
+            return "♟";
+    }
+};
+
 async function main() {
     // Create a new client instance
     const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -22,13 +33,15 @@ async function main() {
         const scraper = new Scraper(COIN_SYMBOL!);
 
         const set24H = () => {
-            client.user?.setPresence({
-                activities: [
-                    {
-                        name: `24H ${scraper.getDayChange()?.toFixed(2)}%`,
-                        type: "WATCHING",
-                    },
-                ],
+            actions.push(async () => {
+                client.user?.setPresence({
+                    activities: [
+                        {
+                            name: `24H ${scraper.getDayChange()?.toFixed(2)}%`,
+                            type: "WATCHING",
+                        },
+                    ],
+                });
             });
         };
 
@@ -42,7 +55,9 @@ async function main() {
                 actions.push(async () => {
                     try {
                         user.setNickname(
-                            `$${numberWithCommas(scraper.getPrice() || 0)}`
+                            `${rankToChar(
+                                scraper.getMcapRank() || 0
+                            )} $${numberWithCommas(scraper.getPrice() || 0)}`
                         );
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } catch (err: any) {
@@ -55,6 +70,8 @@ async function main() {
         scraper.on("newPrice", setName);
 
         scraper.on("newDayChange", set24H);
+
+        scraper.on("newMcapRank", setName);
 
         const processActions = async () => {
             // eslint-disable-next-line no-constant-condition
