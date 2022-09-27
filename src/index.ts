@@ -21,12 +21,9 @@ const rankToChar = (n: number) => {
                 return "♜";
             }
             if (n >= 11 && n < 100) {
-                return "♞"
+                return "♞";
             }
-            if (n >= 100 && n < 1000) {
-                return "♟"
-            }
-            return ""
+            return "♟";
     }
 };
 
