@@ -72,6 +72,8 @@ async function main() {
             });
         };
 
+        setName();
+        setStatus();
         setInterval(setName, 10000);
         setInterval(setStatus, 10000);
     });
