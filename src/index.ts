@@ -38,12 +38,14 @@ async function main() {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const scraper = new Scraper(COIN_SYMBOL!);
 
-        const set24H = () => {
+        const setStatus = () => {
             actions.push(async () => {
+                const newStatus = `24H ${scraper.getDayChange()?.toFixed(2)}%`;
+                log.info("set status: " + newStatus);
                 client.user?.setPresence({
                     activities: [
                         {
-                            name: `24H ${scraper.getDayChange()?.toFixed(2)}%`,
+                            name: newStatus,
                             type: "WATCHING",
                         },
                     ],
@@ -53,18 +55,15 @@ async function main() {
 
         const setName = () => {
             client.guilds.cache.forEach(async (guild) => {
-                const dayChange = scraper.getDayChange() || 0;
-
-                console.log(dayChange);
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const user = await guild.members.fetch(client.user!.id);
                 actions.push(async () => {
+                    const newNick = `${rankToChar(
+                        scraper.getMcapRank() || 0
+                    )} $${numberWithCommas(scraper.getPrice() || 0)}`;
+                    log.info(guild.id + " setName: " + newNick);
                     try {
-                        user.setNickname(
-                            `${rankToChar(
-                                scraper.getMcapRank() || 0
-                            )} $${numberWithCommas(scraper.getPrice() || 0)}`
-                        );
+                        user.setNickname(newNick);
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } catch (err: any) {
                         log.error(err.toString());
@@ -74,9 +73,7 @@ async function main() {
         };
 
         scraper.on("newPrice", setName);
-
-        scraper.on("newDayChange", set24H);
-
+        scraper.on("newDayChange", setStatus);
         scraper.on("newMcapRank", setName);
 
         const processActions = async () => {

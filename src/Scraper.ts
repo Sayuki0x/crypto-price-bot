@@ -1,6 +1,9 @@
 import axios from "axios";
 import { EventEmitter } from "stream";
 import log from "electron-log";
+import ccxt from "ccxt";
+
+console.log(ccxt.exchanges);
 
 export class Scraper extends EventEmitter {
     private price: number | null = null;
@@ -38,8 +41,6 @@ export class Scraper extends EventEmitter {
             const res = await axios.get(
                 `https://api.coingecko.com/api/v3/coins/${this.symbol}`
             );
-
-            console.log(res.data.market_data);
 
             const price: number = res.data.market_data.current_price.usd;
             const dayChange: number =
