@@ -2,14 +2,15 @@ import axios from "axios";
 import { EventEmitter } from "stream";
 import log from "electron-log";
 import ccxt from "ccxt";
-
-console.log(ccxt.exchanges);
+import { COIN_TICKER } from ".";
 
 export class Scraper extends EventEmitter {
     private price: number | null = null;
     private dayChange: number | null = null;
     private mcapRank: number | null = null;
     private symbol: string;
+
+    private exchange = new ccxt.binance();
 
     constructor(symbol: string) {
         super();
@@ -31,35 +32,41 @@ export class Scraper extends EventEmitter {
 
     private init = async () => {
         this.fetchPrice();
+        this.fetchMcap();
         setInterval(() => {
             this.fetchPrice();
         }, 10000);
+        setInterval(() => {
+            this.fetchMcap();
+        }, 10000);
+    };
+
+    private fetchMcap = async () => {
+        const res = await axios.get(
+            `https://api.coingecko.com/api/v3/coins/${this.symbol}`
+        );
+        const mcapRank: number = res.data.market_data.market_cap_rank;
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (this.mcapRank !== mcapRank) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.mcapRank = mcapRank;
+            this.emit("newMcapRank", this.mcapRank);
+        }
     };
 
     private fetchPrice = async () => {
         try {
-            const res = await axios.get(
-                `https://api.coingecko.com/api/v3/coins/${this.symbol}`
-            );
+            const res = await this.exchange.fetchTicker(`${COIN_TICKER}USDT`);
 
-            const price: number = res.data.market_data.current_price.usd;
-            const dayChange: number =
-                res.data.market_data.price_change_percentage_24h;
-
-            const mcapRank: number = res.data.market_data.market_cap_rank;
+            const price = res.last || 0;
+            const dayChange = res.percentage || 0;
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             if (this.price !== price) {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 this.price = price;
                 this.emit("newPrice", this.price);
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            if (this.mcapRank !== mcapRank) {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.mcapRank = mcapRank;
-                this.emit("newMcapRank", this.mcapRank);
             }
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
