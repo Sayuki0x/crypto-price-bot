@@ -1,10 +1,11 @@
 import axios from "axios";
-import { EventEmitter } from "stream";
 import log from "electron-log";
 import ccxt from "ccxt";
 import { COIN_TICKER } from ".";
 
-export class Scraper extends EventEmitter {
+const TICK_TIME = 1000;
+
+export class Scraper {
     private price: number | null = null;
     private dayChange: number | null = null;
     private mcapRank: number | null = null;
@@ -13,7 +14,6 @@ export class Scraper extends EventEmitter {
     private exchange = new ccxt.binance();
 
     constructor(symbol: string) {
-        super();
         this.symbol = symbol;
         this.init();
     }
@@ -35,48 +35,30 @@ export class Scraper extends EventEmitter {
         this.fetchMcap();
         setInterval(() => {
             this.fetchPrice();
-        }, 10000);
+        }, TICK_TIME);
         setInterval(() => {
             this.fetchMcap();
-        }, 10000);
+        }, TICK_TIME * 10);
     };
 
     private fetchMcap = async () => {
-        const res = await axios.get(
-            `https://api.coingecko.com/api/v3/coins/${this.symbol}`
-        );
-        const mcapRank: number = res.data.market_data.market_cap_rank;
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (this.mcapRank !== mcapRank) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.mcapRank = mcapRank;
-            this.emit("newMcapRank", this.mcapRank);
+        try {
+            const res = await axios.get(
+                `https://api.coingecko.com/api/v3/coins/${this.symbol}`
+            );
+            this.mcapRank = res.data.market_data.market_cap_rank;
+        } catch (err: any) {
+            log.warn("An error occured fetching mcap: " + err.toString());
         }
     };
 
     private fetchPrice = async () => {
         try {
             const res = await this.exchange.fetchTicker(`${COIN_TICKER}USDT`);
-
-            const price = res.last || 0;
-            const dayChange = res.percentage || 0;
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            if (this.price !== price) {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.price = price;
-                this.emit("newPrice", this.price);
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            if (this.dayChange !== dayChange) {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.dayChange = dayChange;
-                this.emit("newDayChange", this.dayChange);
-            }
-        } catch (err) {
-            log.warn((err as any).toString());
+            this.price = res.last || 0;
+            this.dayChange = res.percentage || 0;
+        } catch (err: any) {
+            log.warn("An error occured getting price info: " + err.toString());
         }
     };
 }
