@@ -38,7 +38,7 @@ export class Scraper {
         }, TICK_TIME);
         setInterval(() => {
             this.fetchMcap();
-        }, TICK_TIME * 10);
+        }, TICK_TIME * 100);
     };
 
     private fetchMcap = async () => {

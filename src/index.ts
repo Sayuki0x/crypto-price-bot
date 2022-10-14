@@ -34,30 +34,24 @@ async function main() {
     client.once("ready", async () => {
         log.info("Bot logged in");
 
-        const nameActions: Record<string, (() => void)[]> = {};
-        const statusActions: Array<() => void> = [];
-
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const scraper = new Scraper(COIN_SYMBOL!);
 
         log.info("Checking connected guilds...");
         client.guilds.cache.forEach(async (guild) => {
             log.info(`${guild.id} ${guild.name}`);
-            nameActions[guild.id] = [];
         });
 
         const setStatus = () => {
-            statusActions.push(async () => {
-                const newStatus = `24H ${scraper.getDayChange()?.toFixed(2)}%`;
-                log.info("set status: " + newStatus);
-                client.user?.setPresence({
-                    activities: [
-                        {
-                            name: newStatus,
-                            type: "WATCHING",
-                        },
-                    ],
-                });
+            const newStatus = `24H ${scraper.getDayChange()?.toFixed(2)}%`;
+            log.info("set status: " + newStatus);
+            client.user?.setPresence({
+                activities: [
+                    {
+                        name: newStatus,
+                        type: "WATCHING",
+                    },
+                ],
             });
         };
 
@@ -65,56 +59,21 @@ async function main() {
             client.guilds.cache.forEach(async (guild) => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const user = await guild.members.fetch(client.user!.id);
-                nameActions[guild.id].push(async () => {
-                    const newNick = `${rankToChar(
-                        scraper.getMcapRank() || 0
-                    )} $${numberWithCommas(scraper.getPrice() || 0)}`;
-                    log.info(guild.id + " setName: " + newNick);
-                    try {
-                        user.setNickname(newNick);
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    } catch (err: any) {
-                        log.error(err.toString());
-                    }
-                });
+                const newNick = `${rankToChar(
+                    scraper.getMcapRank() || 0
+                )} $${numberWithCommas(scraper.getPrice() || 0)}`;
+                log.info(guild.id + " setName: " + newNick);
+                try {
+                    user.setNickname(newNick);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } catch (err: any) {
+                    log.error(err.toString());
+                }
             });
-        };
-
-        const processNameActions = async (guildID: string) => {
-            // eslint-disable-next-line no-constant-condition
-            let timeout = 1;
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
-                if (nameActions[guildID].length > 0) {
-                    const action = nameActions[guildID].pop() as () => void;
-                    action();
-                    timeout = 1;
-                }
-                await sleep(timeout);
-                timeout *= 2;
-            }
-        };
-
-        const processStatusActions = async () => {
-            // eslint-disable-next-line no-constant-condition
-            let timeout = 1;
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
-                if (statusActions.length > 0) {
-                    const action = statusActions.pop() as () => void;
-                    action();
-                    timeout = 1;
-                }
-                await sleep(timeout);
-                timeout *= 2;
-            }
         };
 
         setInterval(setName, 10000);
         setInterval(setStatus, 10000);
-
-        Object.keys(nameActions).forEach((id) => processNameActions(id));
-        processStatusActions();
     });
 
     client.login(DISCORD_TOKEN);
