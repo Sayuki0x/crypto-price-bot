@@ -72,8 +72,12 @@ async function main() {
             });
         };
 
-        setName();
-        setStatus();
+        // wait to set until we have data
+        scraper.on("ready", () => {
+            setName();
+            setStatus();
+        });
+
         setInterval(setName, 10000);
         setInterval(setStatus, 10000);
     });

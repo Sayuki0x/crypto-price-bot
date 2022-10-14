@@ -2,10 +2,11 @@ import axios from "axios";
 import log from "electron-log";
 import ccxt from "ccxt";
 import { COIN_TICKER } from ".";
+import { EventEmitter } from "stream";
 
 const TICK_TIME = 1000;
 
-export class Scraper {
+export class Scraper extends EventEmitter {
     private price: number | null = null;
     private dayChange: number | null = null;
     private mcapRank: number | null = null;
@@ -14,6 +15,7 @@ export class Scraper {
     private exchange = new ccxt.binance();
 
     constructor(symbol: string) {
+        super();
         this.symbol = symbol;
         this.init();
     }
@@ -31,8 +33,11 @@ export class Scraper {
     }
 
     private init = async () => {
-        this.fetchPrice();
-        this.fetchMcap();
+        await this.fetchPrice();
+        await this.fetchMcap();
+
+        this.emit("ready");
+
         setInterval(() => {
             this.fetchPrice();
         }, TICK_TIME);
