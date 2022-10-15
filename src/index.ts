@@ -78,8 +78,8 @@ async function main() {
             setStatus();
         });
 
-        setInterval(setName, 10000);
-        setInterval(setStatus, 10000);
+        setInterval(setName, 20000);
+        setInterval(setStatus, 20000);
     });
 
     client.login(DISCORD_TOKEN);
