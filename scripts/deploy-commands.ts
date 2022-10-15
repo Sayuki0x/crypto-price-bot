@@ -1,6 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// tslint:disable no-submodule-imports
+
 import { REST } from "@discordjs/rest";
-// tslint:disable-next-line: no-submodule-imports
 import { Routes } from "discord-api-types/v9";
 import { loadEnv } from "../src/utils/loadEnv";
 

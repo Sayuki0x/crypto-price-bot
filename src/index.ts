@@ -1,31 +1,14 @@
 import { Client, Intents } from "discord.js";
 import log from "electron-log";
 import { Scraper } from "./Scraper";
-import { loadEnv } from "./utils/loadEnv";
-import { numberWithCommas } from "./utils/numberWithCommas";
-import { sleep } from "./utils/sleep";
+import { loadEnv } from "./utils";
+import { setName, setStatus } from "./actions";
 
 // load the environment variables
 loadEnv();
 
-export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } = process.env;
-
-const rankToChar = (n: number) => {
-    switch (n) {
-        case 1:
-            return "♚";
-        case 2:
-            return "♛";
-        default:
-            if (n >= 3 && n < 11) {
-                return "♜";
-            }
-            if (n >= 11 && n < 100) {
-                return "♞";
-            }
-            return "♟";
-    }
-};
+export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN } =
+    process.env as Record<string, string>;
 
 async function main() {
     // Create a new client instance
@@ -35,51 +18,22 @@ async function main() {
         log.info("Bot logged in");
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const scraper = new Scraper(COIN_SYMBOL!);
+        const scraper = await Scraper.create(COIN_SYMBOL, COIN_TICKER);
 
         log.info("Checking connected guilds...");
         client.guilds.cache.forEach(async (guild) => {
             log.info(`${guild.id} ${guild.name}`);
         });
 
-        const setStatus = () => {
-            const newStatus = `24H ${scraper.getDayChange()?.toFixed(2)}%`;
-            log.info("set status: " + newStatus);
-            client.user?.setPresence({
-                activities: [
-                    {
-                        name: newStatus,
-                        type: "WATCHING",
-                    },
-                ],
-            });
-        };
+        setName(client, scraper);
+        setStatus(client, scraper);
 
-        const setName = () => {
-            client.guilds.cache.forEach(async (guild) => {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                const user = await guild.members.fetch(client.user!.id);
-                const newNick = `${rankToChar(
-                    scraper.getMcapRank() || 0
-                )} $${numberWithCommas(scraper.getPrice() || 0)}`;
-                log.info(guild.id + " setName: " + newNick);
-                try {
-                    user.setNickname(newNick);
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } catch (err: any) {
-                    log.error(err.toString());
-                }
-            });
-        };
-
-        // wait to set until we have data
-        scraper.on("ready", () => {
-            setName();
-            setStatus();
-        });
-
-        setInterval(setName, 20000);
-        setInterval(setStatus, 20000);
+        setInterval(() => {
+            setName(client, scraper);
+        }, 20000);
+        setInterval(() => {
+            setStatus(client, scraper);
+        }, 20000);
     });
 
     client.login(DISCORD_TOKEN);
