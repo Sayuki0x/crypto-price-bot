@@ -12,5 +12,6 @@ export const setStatus = (client: Client, scraper: Scraper) => {
                 type: "WATCHING",
             },
         ],
+        status: scraper.getDayChange() > 0 ? "online" : "dnd",
     });
 };

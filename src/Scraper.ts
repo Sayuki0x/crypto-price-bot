@@ -26,15 +26,15 @@ export class Scraper {
     }
 
     public getPrice() {
-        return this.price;
+        return this.price!;
     }
 
     public getDayChange() {
-        return this.dayChange;
+        return this.dayChange!;
     }
 
     public getMcapRank() {
-        return this.mcapRank;
+        return this.mcapRank!;
     }
 
     private init = async () => {
