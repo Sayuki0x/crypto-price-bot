@@ -30,10 +30,10 @@ async function main() {
 
         setInterval(() => {
             setName(client, scraper);
-        }, 20000);
+        }, Number(process.env.REFRESH_RATE));
         setInterval(() => {
             setStatus(client, scraper);
-        }, 20000);
+        }, Number(process.env.REFRESH_RATE));
     });
 
     client.login(DISCORD_TOKEN);

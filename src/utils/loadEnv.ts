@@ -10,6 +10,7 @@ export function loadEnv(): void {
         "DISCORD_TOKEN",
         "COIN_SYMBOL",
         "COIN_TICKER",
+        "REFRESH_RATE",
     ];
 
     const notFound: string[] = [];
