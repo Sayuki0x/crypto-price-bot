@@ -11,7 +11,7 @@ export class Scraper {
     private symbol: string;
     private ticker: string;
 
-    private exchange = new ccxt.binance();
+    private exchange = new ccxt.coinbase();
 
     public static async create(coinSymbol: string, coinTicker: string) {
         const scraper = new Scraper(coinSymbol, coinTicker);
