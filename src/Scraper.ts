@@ -64,9 +64,6 @@ export class Scraper {
     private fetchPrice = async () => {
         try {
             const res = await this.exchange.fetchTicker(`${this.ticker}`);
-
-            console.log(res);
-
             this.price = res.last || 0;
             this.dayChange = res.percentage || 0;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
