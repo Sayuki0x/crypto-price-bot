@@ -2,7 +2,7 @@ import axios from "axios";
 import log from "electron-log";
 import ccxt from "ccxt";
 
-const TICK_TIME = 1000;
+const TICK_TIME = 5000;
 
 export class Scraper {
     private price: number | null = null;
@@ -11,7 +11,7 @@ export class Scraper {
     private symbol: string;
     private ticker: string;
 
-    private exchange = new ccxt.coinbase();
+    private exchange = new ccxt.kraken();
 
     public static async create(coinSymbol: string, coinTicker: string) {
         const scraper = new Scraper(coinSymbol, coinTicker);
@@ -64,6 +64,9 @@ export class Scraper {
     private fetchPrice = async () => {
         try {
             const res = await this.exchange.fetchTicker(`${this.ticker}`);
+
+            console.log(res);
+
             this.price = res.last || 0;
             this.dayChange = res.percentage || 0;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
