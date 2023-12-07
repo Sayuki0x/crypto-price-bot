@@ -1,6 +1,7 @@
 import axios from "axios";
 import log from "electron-log";
 import ccxt from "ccxt";
+import { EXCHANGE } from ".";
 
 const TICK_TIME = 5000;
 
@@ -11,7 +12,7 @@ export class Scraper {
     private symbol: string;
     private ticker: string;
 
-    private exchange = new ccxt.kraken();
+    private exchange = new ccxt[EXCHANGE as 'kraken']();
 
     public static async create(coinSymbol: string, coinTicker: string) {
         const scraper = new Scraper(coinSymbol, coinTicker);
