@@ -7,7 +7,7 @@ import { setName, setStatus } from "./actions";
 // load the environment variables
 loadEnv();
 
-export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN, EXCHANGE } =
+export const { COIN_SYMBOL, COIN_TICKER, DISCORD_TOKEN, EXCHANGE, DECIMALS } =
     process.env as Record<string, string>;
 
 async function main() {

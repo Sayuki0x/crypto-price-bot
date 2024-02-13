@@ -12,7 +12,7 @@ export class Scraper {
     private symbol: string;
     private ticker: string;
 
-    // @ts-ignore;
+    // @ts-ignore
     private exchange = new ccxt[EXCHANGE]();
 
     public static async create(coinSymbol: string, coinTicker: string) {
