@@ -5,6 +5,7 @@ import log from "electron-log";
 export const setStatus = (client: Client, scraper: Scraper) => {
     const newStatus = `24H ${scraper.getDayChange()?.toFixed(2)}%`;
     log.info("set status: " + newStatus);
+
     client.user?.setPresence({
         activities: [
             {
